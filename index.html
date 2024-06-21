@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Comparing Sorts</title>
+        <script defer type="module" src="newScript.js"></script>
+        <style>
+            @import url('https://fonts.googleapis.com/css?family=Courier+New');
+            * {
+                font-family: Courier New;
+                /*font-size: 1.25vh;*/
+            }
+            div {
+                color: white;
+            }
+            body {
+                margin: 0;
+                background: black;
+                overflow: hidden;
+            }
+            .toggle {
+                display: none;
+            }
+            canvas, #content {
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: -1;
+            }
+            canvas {
+                right: 0;
+                bottom: 0;
+                /*margin: auto;*/
+                image-rendering: optimizeSpeed;
+                image-rendering: -moz-crisp-edges;
+                image-rendering: -o-crisp-edges;
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: optimize-contrast;
+                image-rendering: crisp-edges;
+                image-rendering: pixelated;
+                -ms-interpolation-mode: nearest-neighbor;
+            }
+            #main {
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .hidden {
+                display: none !important;
+            }
+            select {
+                background: transparent;
+                color: white;
+                outline: none;
+                border: none;
+                text-align: center;
+                padding: 3px 5px;
+                border-radius: 1px;
+            }
+            select option {
+                background: black;
+                outline: none;
+                border: none;
+            }
+            /*select::-ms-expand {*/
+            /*    display: none;*/
+            /*}*/
+            .select {
+                position: relative;
+                width: 200px;
+                text-align: center;
+                cursor: pointer;
+                border: 1px solid white;
+            }
+            .options {
+                overflow: hidden;
+                position: absolute;
+                top: 100%;
+                transition: all 0.2s ease 0s;
+                max-height: 0px;
+                z-index: 5;
+                left: 0;
+                right: 0;
+                background: black;
+                border: none;
+                overflow-y: scroll;
+                -ms-overflow-style: none;  /* Internet Explorer 10+ */
+                scrollbar-width: none;  /* Firefox */
+            }
+            .options::-webkit-scrollbar { 
+                display: none;  /* Safari and Chrome */
+            }
+            .select:hover .options, .options:hover {
+                max-height: 30vh;
+                border: 2px solid white;
+            }
+            .select-div {
+                display: flex;
+                gap: 10px;
+                /*width: 30%;*/
+                /*font-size: 0.75vw;*/
+            }
+            .options option:hover {
+                background-color: rgba(0, 128, 255, 50%);
+            }
+            option {
+                /*text-align: center;*/
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                line-height: 20px;
+            }
+            #size {
+                background: none;
+                outline: none;
+                border: 1px solid white;
+                text-align: center;
+                color: white;
+                width: 200px;
+            }
+            #start {
+                outline: none;
+                border: 1px solid white;
+                background: none;
+                color: white;
+                width: 410px;
+                cursor: pointer;
+                transition: 0.4s scale;
+            }
+            #start:hover {
+                scale: 1.02;
+                transition: 0.2s scale;
+            }
+            #start:active {
+                scale: 0.98;
+                transition: 0.05s scale;
+            }
+            #main {
+                /*font-size: 0.9vw*/
+            }
+            #content {
+                width: 100vw;
+                /*position: relative;*/
+            }
+            #log {
+                width: 50vw;
+                pointer-events: none;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="main">
+            <h1 style="font-size: 5vh">Sorting Simulator</h1>
+            <!--<input id="test" placeholder="Array Size" min="1" max="100" type="range" />-->
+            <div style="text-align: center">
+                <div style="text-align: center; /*font-size: 1.5vh*/">Array Size <span id="max">(Max: *)</span></div>
+                <input id="size" placeholder="Array Size" min="1" type="tel" />
+            </div>
+            <div class="select-div">
+                <div id="sort-select" class="select">
+                    <span class="select-text sort"><span style="color: #888">Sorting Algorithm</span></span>
+                    <div class="options" data-type="sort">
+                        <option disabled>Common Sorts</option>
+                        <option value="insertion">Insertion</option>
+                        <option value="selection">Selection</option>
+                        <option value="bubble">Bubble</option>
+                        <option value="heap">Heap</option>
+                        
+                        <option disabled>Quick Sorts</option>
+                        <option value="quick">Quick</option>
+                        <option value="stableQuick">Stable Quick</option>
+                        <option value="quick3">3 Way Quick</option>
+                        
+                        <option disabled>Merge Sorts</option>
+                        <option value="bitonic">Bitonic</option>
+                        <option value="merge">Merge</option>
+                        <option value="timSort">Tim Sort</option>
+    
+                        <option disabled>Radix Sorts</option>
+                        <option value="radix2">Radix Base 2</option>
+                        <option value="radix4">Radix Base 4</option>
+                        <option value="radix10">Radix Base 10</option>
+                        
+                        <option disabled>Extra Sorts</option>
+                        <option value="optimizedBubble">Optimized Bubble</option>
+                        <option value="oddEven">Odd Even</option>
+                        <option value="cocktail">Cocktail</option>
+                        <option value="shell">Shell</option>
+                        <option value="comb">Comb</option>
+                        
+                        <option disabled>Slow Sorts</option>
+                        <option value="stooge">Stooge</option>
+                        <option value="gnome">Gnome</option>
+                        <option value="cycle">Cycle</option>
+                    </div>
+                </div>
+                <div value="shuffle" id="shuffle-select" class="select">
+                    <span class="select-text input">Shuffle</span>
+                    <div class="options" data-type="input">
+                        <option disabled>Choose an Input</option>
+                        <option selected value="shuffle">Shuffle</option>
+                        <option value="reverse">Reverse</option>
+                        <option value="almostSorted">Almost Sorted</option>
+                        <option value="manySimilar">Many Similar</option>
+                        <option value="scrambledTail">Scrambled Tail</option>
+                        <option value="finalMerge">Final Merge</option>
+                        <option value="sawtooth">Sawtooth</option>
+                        <option value="pipeOrgan">Pipe Organ</option>
+                        <option value="finalRadix">Final Radix</option>
+                        <option value="heapify">Heapify</option>
+                        <option value="sineCurve">Sine Curve</option>
+                    </div>
+                </div>
+                <!--<select name="sort" id="sort-select">-->
+                <!--    <option selected disabled hidden>Sorting Algorithm</option>-->
+                    
+                <!--    <option disabled>Slow Sorts</option>-->
+                <!--    <option value="stooge">Stooge</option>-->
+                <!--    <option value="gnome">Gnome</option>-->
+                <!--    <option value="cycle">Cycle</option>-->
+                    
+                <!--    <option disabled>Common Sorts</option>-->
+                <!--    <option value="insertion">Insertion</option>-->
+                <!--    <option value="selection">Selection</option>-->
+                <!--    <option value="bubble">Bubble</option>-->
+                <!--    <option value="heap">Heap</option>-->
+                    
+                <!--    <option disabled>Quick Sorts</option>-->
+                <!--    <option value="quick">Quick</option>-->
+                <!--    <option value="stableQuick">Stable Quick</option>-->
+                <!--    <option value="quick3">3 Way Quick</option>-->
+                    
+                <!--    <option disabled>Merge Sorts</option>-->
+                <!--    <option value="bitonic">Bitonic</option>-->
+                <!--    <option value="merge">Merge</option>-->
+                <!--    <option value="timSort">Tim Sort</option>-->
+
+                <!--    <option disabled>Radix Sorts</option>-->
+                <!--    <option value="radix2">Radix Base 2</option>-->
+                <!--    <option value="radix4">Radix Base 4</option>-->
+                <!--    <option value="radix10">Radix Base 10</option>-->
+                    
+                <!--    <option disabled>Extra Sorts</option>-->
+                <!--    <option value="optimizedBubble">Optimized Bubble</option>-->
+                <!--    <option value="oddEven">Odd Even</option>-->
+                <!--    <option value="cocktail">Cocktail</option>-->
+                <!--    <option value="shell">Shell</option>-->
+                <!--    <option value="comb">Comb</option>-->
+                    <!--<option value="bogo">Bogo</option>-->
+                <!--</select>-->
+                <!--<select name=shuffle id="shuffle-select">-->
+                <!--    <option disabled>Choose an Input</option>-->
+                <!--    <option selected value="shuffle">Shuffle</option>-->
+                <!--    <option value="reverse">Reverse</option>-->
+                <!--    <option value="almostSorted">Almost Sorted</option>-->
+                <!--    <option value="manySimilar">Many Similar</option>-->
+                <!--    <option value="scrambledTail">Scrambled Tail</option>-->
+                <!--    <option value="finalMerge">Final Merge</option>-->
+                <!--    <option value="sawtooth">Sawtooth</option>-->
+                <!--    <option value="pipeOrgan">Pipe Organ</option>-->
+                <!--    <option value="finalRadix">Final Radix</option>-->
+                <!--    <option value="heapify">Heapify</option>-->
+                <!--    <option value="sineCurve">Sine Curve</option>-->
+                <!--</select>-->
+            </div>
+            <button id="start">Play</button>
+        </div>
+        <div id="content" class="hidden">
+            <canvas></canvas>
+            <div style="z-index: 60; position: absolute; right: 5px; top: 5px; text-align: right">
+                <div>Speed: <span id="speedSpan">1</span> Frames per frame</div>
+                <input style="width: 50vw" id="speed" placeholder="Speed Multiplier" type="range" value="1" min="1" max="100"/>
+            </div>
+            <div id="log" style="white-space: pre; color: white;margin: 5px;">Awaiting Play</div>
+            <!--<div id="log2" style="white-space: pre; color: white;margin: 5px;">test</div>-->
+        </div>
+    </body>
+</html>
